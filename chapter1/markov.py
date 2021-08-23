@@ -104,6 +104,39 @@ class Process2(MarkovProcess[StateMP2]):
       StateMP2(up_count_tm1 = 0, down_count_tm1 = 0, up_count_t = 0, down_count_t = 0): 1.
     });
 
+@dataclass
+class StateMP3:
+  up_count: int;
+  down_count: int;
+  def __hash__(self,):
+    return int(str(self.up_count) + str(self.down_count));
+
+class Process3(MarkovProcess[StateMP3]):
+  def __init__(self, x0: float = 100., alpha3: float = 0.25, step_time: int = 0):
+    assert step_time >= 0;
+    self.x0: float = x0;
+    self.alpha3: float = alpha3;
+    self.step_time = step_time;
+  def transition(self, state: StateMP3) -> Optional[Distribution[StateMP3]]:
+    if self.step_time == 0 or state.up_count + state.down_count < self.step_time:
+      if state.up_count == 0 and state.down_count == 0:
+        return Distribution({
+          StateMP3(up_count = state.up_count + 1, down_count = state.down_count): 0.5,
+          StateMP3(up_count = state.up_count, down_count = state.down_count + 1): 0.5,
+        });
+      else:
+        up_prob = 1 / (1 + (state.up_count/state.down_count)**self.alpha3);
+        return Distribution({
+          StateMP3(up_count = state.up_count + 1, down_count = state.down_count): up_prob,
+          StateMP3(up_count = state.up_count, down_count = state.down_count + 1): 1 - up_prob,
+        });
+    else:
+      return None;
+  def init_distribution(self,) -> Distribution[StateMP3]:
+    return Distribution({
+      StateMP3(up_count = 0, down_count = 0): 1.
+    });
+
 if __name__ == "__main__":
   proc1 = Process1(step_time = 10);
   for state in proc1.simulate():
@@ -111,4 +144,6 @@ if __name__ == "__main__":
   proc2 = Process2(step_time = 10);
   for state in proc2.simulate():
     print(state);
-
+  proc3 = Process3(step_time = 10);
+  for state in proc3.simulate():
+    print(state);
