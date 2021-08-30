@@ -39,7 +39,7 @@ class SimpleInventoryFMP(FiniteMarkovProcess[InventoryState]):
     # because 0 <= on_hand + on_order <= capacity
     # and 0 <= on_hand <= capacity
     # so 0 <= on_order <= capacity - on_hand
-    transitions: Dict[InventoryState, Optional[Distribution[InventoryState]]];
+    transitions: Dict[InventoryState, Optional[Distribution[InventoryState]]] = dict();
     for alpha in range(capacity + 1):
       for beta in range(capacity + 1 - alpha):
         state_t = InventoryState(alpha, beta);
@@ -51,7 +51,7 @@ class SimpleInventoryFMP(FiniteMarkovProcess[InventoryState]):
           alpha_tp1 = state_t.position() - i;
           dist[InventoryState(alpha_tp1, beta_tp1)] = prob;
         transitions[state_t] = Distribution(dist);
-    super(self, SimpleInventoryFMP).__init__(transitions);
+    super(SimpleInventoryFMP, self).__init__(transitions);
   def init_distribution(self, ) -> Distribution[InventoryState]:
     return Distribution({
       InventoryState(on_hand = 0, on_order = 0): 1.,
