@@ -6,6 +6,8 @@ from dataclasses import dataclass;
 import tensorflow as tf;
 import tensorflow_probability as tfp;
 
+# INFO: markov process can have inifinite countable states
+
 # template variable
 State = TypeVar('State');
 
