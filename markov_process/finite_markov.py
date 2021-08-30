@@ -1,7 +1,10 @@
 #!/usr/bin/python3
 
 from typing import TypeVar, Generic, Dict, List, Optional, Iterable;
+from dataclasses import dataclass;
 from markov import MarkovProcess, Distribution, State;
+import tensorflow as tf;
+import tensorflow_probability as tfp;
 
 # INFO: finite markov process can have finite states
 
@@ -27,7 +30,7 @@ class InventoryState:
   def __hash__(self,):
     return int(str(on_hand) + str(on_order));
   def position(self,):
-    return on_hand + on_order;
+    return self.on_hand + self.on_order;
 
 class SimpleInventoryFMP(FiniteMarkovProcess[InventoryState]):
   def __init__(self, capacity: int, poisson_lambda: float):
