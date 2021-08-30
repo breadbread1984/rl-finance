@@ -28,7 +28,7 @@ class InventoryState:
   on_hand: int;
   on_order: int;
   def __hash__(self,):
-    return int(str(on_hand) + str(on_order));
+    return int(str(self.on_hand) + str(self.on_order));
   def position(self,):
     return self.on_hand + self.on_order;
 
