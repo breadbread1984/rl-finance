@@ -52,7 +52,8 @@ class SimpleInventoryFMP(FiniteMarkovProcess[InventoryState]):
         dist = dict();
         # iterate over all possible number of sold
         for i in range(state_t.position() + 1):
-          alpha_tp1 = state_t.position() - i;
+          alpha_tp1 = state_t.position() - i; # position - sold
+          # NOTE: define p(sold = position) = sum from {i = position} to {+inf} {poisson.prob(sold)} = 1 - poisson.cdf(position - 1)
           dist[InventoryState(alpha_tp1, beta_tp1)] = self.poisson.prob(i) if i < state_t.position() else 1 - self.poisson.cdf(state_t.position() - 1);
         transitions[state_t] = Distribution(dist);
     super(SimpleInventoryFMP, self).__init__(Transitions(transitions));
