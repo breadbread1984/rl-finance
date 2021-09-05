@@ -20,6 +20,11 @@ class Distribution(Generic[State]):
   def sample(self,) -> State:
     s = self.dist.sample();
     return self.keys[s];
+  def __str__(self,) -> str:
+    msg: str = '';
+    for i in range(len(self.keys)):
+      msg += "\tTo State %s with Probability %f\n" % (str(self.keys[i]), self.dist.prob(i));
+    return msg;
 
 # template abstract class markov process
 class MarkovProcess(ABC, Generic[State]):

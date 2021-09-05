@@ -13,6 +13,11 @@ class Transitions(Generic[State]):
     self.transitions = transitions;
   def items(self,):
     return self.transitions.items();
+  def __str__(self,):
+    msg: str = '';
+    for key, value in self.transitions.items():
+      msg += "From State %s:\n%s" % (str(key), value if value else '');
+    return msg;
 
 class FiniteMarkovProcess(MarkovProcess[State]):
   def __init__(self, transitions: Transitions):
@@ -47,11 +52,10 @@ class SimpleInventoryFMP(FiniteMarkovProcess[InventoryState]):
         dist = dict();
         # iterate over all possible number of sold
         for i in range(state_t.position() + 1):
-          prob = self.poisson.prob(i);
           alpha_tp1 = state_t.position() - i;
-          dist[InventoryState(alpha_tp1, beta_tp1)] = prob;
+          dist[InventoryState(alpha_tp1, beta_tp1)] = self.poisson.prob(i) if i < state_t.position() else self.poisson.cdf(i);
         transitions[state_t] = Distribution(dist);
-    super(SimpleInventoryFMP, self).__init__(transitions);
+    super(SimpleInventoryFMP, self).__init__(Transitions(transitions));
   def init_distribution(self, ) -> Distribution[InventoryState]:
     return Distribution({
       InventoryState(on_hand = 0, on_order = 0): 1.,
@@ -60,6 +64,7 @@ class SimpleInventoryFMP(FiniteMarkovProcess[InventoryState]):
 if __name__ == "__main__":
 
   proc1 = SimpleInventoryFMP(capacity = 2, poisson_lambda = 1.);
+  print(proc1.transitions);
   for state in proc1.simulate():
     print(state);
 
