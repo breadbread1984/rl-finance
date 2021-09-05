@@ -20,6 +20,8 @@ class Distribution(Generic[State]):
   def sample(self,) -> State:
     s = self.dist.sample();
     return self.keys[s];
+  def __getitem__(self, key):
+    return self.dist.prob(self.keys.index(key)) if key in self.keys else 0;
   def __str__(self,) -> str:
     msg: str = '';
     for i in range(len(self.keys)):
