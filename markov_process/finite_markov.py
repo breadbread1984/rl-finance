@@ -2,9 +2,10 @@
 
 from typing import TypeVar, Generic, Dict, List, Optional, Iterable;
 from dataclasses import dataclass;
-from markov import MarkovProcess, Distribution, State;
+import numpy as np;
 import tensorflow as tf;
 import tensorflow_probability as tfp;
+from markov import MarkovProcess, Distribution, State;
 
 # INFO: finite markov process can have finite states
 
@@ -13,6 +14,8 @@ class Transitions(Generic[State]):
     self.transitions = transitions;
   def items(self,):
     return self.transitions.items();
+  def __getitem__(self, key):
+    return self.transitions[key];
   def __str__(self,):
     msg: str = '';
     for key, value in self.transitions.items():
@@ -27,6 +30,16 @@ class FiniteMarkovProcess(MarkovProcess[State]):
     return self.transitions[s];
   def states(self,) -> Iterable[State]:
     return self.transitions.keys();
+  def get_transition_matrix(self,) -> np.ndarray:
+    mat = np.zeros((len(self.non_terminal_state), len(self.non_terminal_state)));
+    for i, s1 in enumerate(self.non_terminal_state):
+      for j, s2 in enumerate(self.non_terminal_state):
+        mat[i,j] = self.transitions[s1][s2];
+    return mat;
+  def get_stationary_distribution(self,) -> Distribution[State]:
+    vals, vecs = np.linalg.eig(np.transpose(self.get_transition_matrix()));
+    val = np.real(vecs[:,np.where(np.abs(vals - 1) < 1e-7)[0][0]]);
+    return Distribution({self.non_terminal_state[i]: v for i, v in enumerate(val / sum(val))});
 
 @dataclass
 class InventoryState:
@@ -66,6 +79,10 @@ if __name__ == "__main__":
 
   proc1 = SimpleInventoryFMP(capacity = 2, poisson_lambda = 1.);
   print(proc1.transitions);
-  for state in proc1.simulate():
+  sim_iter = proc1.simulate();
+  for i in range(10):
+    state = next(sim_iter);
     print(state);
-
+  m = proc1.get_transition_matrix();
+  print(m);
+  print(proc1.get_stationary_distribution());
